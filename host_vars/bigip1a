@@ -1,0 +1,6 @@
+---
+tier: 1
+ext_ip: 10.10.1.31
+int_ip: 172.16.1.31
+peer_ip: 172.16.1.32
+peer_name: bigip1b.f5trn.com

@@ -1,0 +1,14 @@
+---
+- name: Onboard BIG-IP
+  hosts: bigip1a
+  gather_facts: false
+  connection: local
+  vars:
+    provider_server: "{{ inventory_hostname }}"
+    provider_server_port: 443
+    provider_user: admin
+    provider_password: admin
+    provider_validate_certs: false
+    provider_transport: rest
+  roles:
+  - role: f5devcentral.bigip_onboard

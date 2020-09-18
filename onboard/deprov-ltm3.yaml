@@ -1,0 +1,45 @@
+---
+- name: Deprovision LTM and Reboot if Required
+  hosts: bigip1a
+  gather_facts: false
+  connection: local
+  vars:
+    provider:
+      server: "{{ inventory_hostname }}"
+      user: "{{ admin_user }}"
+      password: "{{ admin_password }}"
+      validate_certs: false
+
+  tasks:
+  - name: Deprovision LTM
+    bigip_provision:
+      module: ltm
+      state: absent
+      provider: "{{ provider }}"
+    ignore_errors: true
+    no_log: true
+
+  - name: Wait for provisioning to Complete
+    pause:
+      seconds: 60
+
+  - name: Gather Provision Facts
+    bigip_device_info:
+      gather_subset: provision-info
+      provider: "{{ provider }}"
+    register: facts
+
+  - name: End Play if LTM is Still Provisioned
+    fail:
+      msg: LTM is still provisioned -- ending play
+    when: (facts.provision_info | selectattr('name', 'equalto', 'ltm') | first).level != "none"
+
+  - name: Check if BIG-IP Requires a Reboot
+    connection: ssh
+    command: cat /var/prompt/ps1
+    register: results
+    changed_when: false
+
+  - name: Debug
+    debug:
+      msg: "{{ results.stdout }}"

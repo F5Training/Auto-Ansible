@@ -1,0 +1,8 @@
+---
+  - hosts: bigips
+    connection: local
+    gather_facts: false
+    tasks:
+    - debug:
+        msg: Host {{ inventory_hostname }} is in tier {{ tier }}
+      when: tier == 2

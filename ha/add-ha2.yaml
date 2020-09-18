@@ -1,0 +1,40 @@
+---
+- name: Configuring the BIG-IPs to support High Availabity
+  hosts: bigips
+  gather_facts: false
+  connection: local
+  ignore_errors: true
+  vars:
+    provider:
+      server: "{{ inventory_hostname }}"
+      user: "{{ admin_user }}"
+      password: "{{ admin_password }}"
+      validate_certs: false
+
+  tasks:
+  - name: Create External Floating Self IP
+    bigip_selfip:
+      name: "{{ ext_float_ip }}"
+      vlan: external.vlan
+      address: "{{ ext_float_ip }}"
+      netmask: "{{ ext_mask }}"
+      traffic_group: traffic-group-1
+      provider: "{{ provider }}"
+
+  - name: Create Internal Floating Self IP
+    bigip_selfip:
+      name: "{{ int_float_ip }}"
+      vlan: internal.vlan
+      address: "{{ int_float_ip }}"
+      netmask: "{{ int_mask }}"
+      traffic_group: traffic-group-1
+      provider: "{{ provider }}"
+
+  - name: Config Sync, Unicast and Mirroring IPs
+    bigip_device_connectivity:
+      config_sync_ip: "{{ int_ip }}"
+      mirror_primary_address: "{{ int_ip }}"
+      unicast_failover:
+      - address: "{{ int_ip }}"
+      provider: "{{ provider }}"
+

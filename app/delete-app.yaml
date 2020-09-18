@@ -1,0 +1,43 @@
+---
+- name: Delete BIG-IP App
+  hosts: bigips
+  gather_facts: false
+  connection: local
+  vars:
+    provider:
+      server: "{{ inventory_hostname }}"
+      user: "{{ admin_user }}"
+      password: "{{ admin_password }}"
+      validate_certs: false
+
+  tasks:
+  - block:
+    - name: Delete Virtual Server
+      bigip_virtual_server:
+        name: app.vs
+        state: absent
+        provider: "{{ provider }}"
+
+    - name: Delete Pool
+      bigip_pool:
+        name: app.pool
+        state: absent
+        provider: "{{ provider }}"
+
+    - name: Delete Monitor
+      bigip_monitor_http:
+        name: app.mon
+        state: absent
+        provider: "{{ provider }}"
+
+    - name: Add pool member
+      bigip_node:
+        name: "{{ item }}"
+        state: absent
+        provider: "{{ provider }}"
+      with_items:
+      - 10.10.1.1
+      - 10.10.1.2
+      - 10.10.1.3
+
+    when: inventory_hostname == "bigip1a"

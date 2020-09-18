@@ -1,0 +1,19 @@
+---
+- name: Play 2 - gether and show BIG-IP specific facts
+  hosts: bigip1a
+  gather_facts: false
+  connection: local
+  tasks:
+  - name: Task 1 - gather BIG-IP facts
+    bigip_device_info:
+      gather_subset: system-info
+      provider:
+        server: "{{ inventory_hostname }}"
+        user: admin
+        password: admin
+        validate_certs: false
+    register: bigip_sys_info
+  - name: Task 2 - save facts
+    copy:
+      content: "{{ bigip_sys_info }}"
+      dest: "~/facts/{{ inventory_hostname }}.facts"

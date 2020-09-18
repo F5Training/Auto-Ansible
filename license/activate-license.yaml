@@ -1,0 +1,19 @@
+---
+- name: Activating BIG-IP License
+  hosts: bigip1a
+  gather_facts: false
+  connection: local
+  vars:
+    provider:
+      server: "{{ inventory_hostname }}"
+      user: "{{ admin_user }}"
+      password: "{{ admin_password }}"
+      validate_certs: false
+
+  tasks:
+  - name: Activate License
+    bigip_device_license:
+      license_key: XXXXX-XXXXX-XXXXX-XXXXX-XXXXXXX
+      accept_eula: true
+      provider: "{{ provider }}"
+
